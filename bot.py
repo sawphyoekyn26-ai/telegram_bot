@@ -36,7 +36,7 @@ async def status(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 def download_audio_sync(url, message):
     ydl_opts = {
-        'format': 'm4a/bestaudio/ba/best',
+        'format': 'bestaudio/best',
         'outtmpl': '%(title)s.%(ext)s', 
         'noplaylist': True,
         'quiet': True,
