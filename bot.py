@@ -6,8 +6,8 @@ import traceback
 from telegram import Update
 from telegram.ext import ApplicationBuilder, ContextTypes, MessageHandler, filters, CommandHandler
 
-# Bot Token ကို Variables ထဲကနေ ယူတာ ပိုကောင်းပါတယ် (သို့မဟုတ်) တိုက်ရိုက်ထည့်ပါ
-TOKEN = os.getenv("8876675492:AAEpPcm-qFDAGiQblS4bo1E3JJPayJNNEJ8")
+# Token ကို ရယူခြင်း (Railway Variables ထဲကနေ အလိုအလျောက် ယူပါမယ်)
+TOKEN = os.getenv("TOKEN", "YOUR_TOKEN_HERE")
 
 def get_progress_hook(message):
     def hook(d):
@@ -34,13 +34,17 @@ async def status(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 def download_audio_sync(url, message):
     ydl_opts = {
-        'format': 'm4a/bestaudio/ba/best', # ပိုမိုကောင်းမွန်သော Format ရှာဖွေမှု
+        'format': 'm4a/bestaudio/ba/best', # အကောင်းဆုံး Format ကို ရွေးချယ်ခြင်း
         'outtmpl': '%(title)s.%(ext)s', 
         'noplaylist': True,
         'quiet': True,
         'no_warnings': True,
         'nocheckcertificate': True,
-        'cookiefile': 'cookies.txt',
+        'cookiefile': 'cookies.txt', # Cookie ဖိုင် အသုံးပြုခြင်း
+        
+        # 🔴 YouTube Bot Check ကို ကျော်လွှားရန် Android Client အဖြစ် သတ်မှတ်ခြင်း 🔴
+        'extractor_args': {'youtube': {'player_client': ['android', 'web']}},
+        
         'postprocessors': [{
             'key': 'FFmpegExtractAudio',
             'preferredcodec': 'mp3',
@@ -76,6 +80,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     title=file_name.replace('.mp3', '')
                 )
             
+            # ပို့ပြီးတာနဲ့ ဖိုင်ကို ဖျက်ခြင်း (Server Storage မပြည့်အောင်)
             if os.path.exists(file_path):
                 os.remove(file_path)
             await status_msg.delete()
@@ -87,7 +92,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await status_msg.edit_text(f"❌ Error: {str(e)}")
 
 if __name__ == '__main__':
-    # drop_pending_updates=True ကိုထည့်ထားတဲ့အတွက် Conflict ဖြစ်တာ သက်သာစေပါမယ်
+    # drop_pending_updates=True ကို ထည့်ထားလို့ Instance လုတဲ့ Conflict ပြဿနာ မရှိတော့ပါ
     app = ApplicationBuilder().token(TOKEN).build()
     
     app.add_handler(CommandHandler("start", start))
